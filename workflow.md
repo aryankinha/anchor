@@ -1,4 +1,4 @@
-# Anchor — Workflow Guide
+# anchorctl — Workflow Guide
 
 > ⚓ Zero-downtime deployment orchestrator.
 > Declarative Blue/Green deploys with automated rollback.
@@ -16,17 +16,33 @@
 
 ## Installation
 
-```bash
-git clone <your-repo-url>
-cd deploy-orchestrator
+### Option 1 — Homebrew (recommended)
 
+```bash
+brew tap aryankinha/tap && brew install anchorctl
+```
+
+### Option 2 — From source
+
+```bash
+git clone https://github.com/aryankinha/anchor
+cd anchor
+
+python3 -m venv ~/.anchorctl-venv
+source ~/.anchorctl-venv/bin/activate
 pip install -e .
 ```
 
-That's it. You now have `anchor` available as a system command.
+To make `anchorctl` available in every new shell, add this to your `~/.zshrc`:
 
 ```bash
-anchor --help
+source ~/.anchorctl-venv/bin/activate
+```
+
+That's it. You now have `anchorctl` available as a system command.
+
+```bash
+anchorctl --help
 ```
 
 ---
@@ -36,10 +52,10 @@ anchor --help
 ### 1. Initialize a config file
 
 ```bash
-anchor init
+anchorctl init
 ```
 
-Anchor will ask a few questions and write a `deploy.yml`:
+anchorctl will ask a few questions and write a `deploy.yml`:
 
 ```
 App name: myapp
@@ -53,7 +69,7 @@ Rollback threshold (0-1): 0.01
 Or skip prompts with defaults:
 
 ```bash
-anchor init --non-interactive
+anchorctl init --non-interactive
 ```
 
 ### 2. Review the generated `deploy.yml`
@@ -108,7 +124,7 @@ Wait until all containers are running (~60 seconds first time).
 ### Step 1 — Preview the deployment
 
 ```bash
-anchor plan
+anchorctl plan
 ```
 
 Shows exactly what will happen. No changes made. Like `terraform plan`.
@@ -132,13 +148,13 @@ Shows exactly what will happen. No changes made. Like `terraform plan`.
     6 │ If clean              → promote Green as production
 
   ─── No changes made ──────────────────────────────
-    Run 'anchor apply' to execute this plan.
+    Run 'anchorctl apply' to execute this plan.
 ```
 
 ### Step 2 — Deploy
 
 ```bash
-anchor apply
+anchorctl apply
 ```
 
 Anchor executes the plan:
@@ -151,7 +167,7 @@ Anchor executes the plan:
 ### Step 3 — Watch it live
 
 ```bash
-anchor status
+anchorctl status
 ```
 
 ```
@@ -172,15 +188,15 @@ anchor status
 
 | Command | What it does |
 |---|---|
-| `anchor init` | Scaffold a `deploy.yml` interactively |
-| `anchor plan` | Preview deployment — no changes made |
-| `anchor apply` | Deploy new version via Blue/Green |
-| `anchor status` | Current state + recent FSM events |
-| `anchor rollback` | Force revert to stable (Blue) immediately |
-| `anchor destroy` | Rollback with confirmation prompt |
-| `anchor switch blue\|green` | Manually flip traffic (no health checks) |
-| `anchor history` | Full deployment history table |
-| `anchor --version` | Show version |
+| `anchorctl init` | Scaffold a `deploy.yml` interactively |
+| `anchorctl plan` | Preview deployment — no changes made |
+| `anchorctl apply` | Deploy new version via Blue/Green |
+| `anchorctl status` | Current state + recent FSM events |
+| `anchorctl rollback` | Force revert to stable (Blue) immediately |
+| `anchorctl destroy` | Rollback with confirmation prompt |
+| `anchorctl switch blue\|green` | Manually flip traffic (no health checks) |
+| `anchorctl history` | Full deployment history table |
+| `anchorctl --version` | Show version |
 
 ---
 
@@ -193,10 +209,10 @@ Open 3 terminals:
 while true; do curl -s http://localhost/ ; sleep 0.3; done
 
 # Terminal 2 — deploy (green has 20% 500 errors)
-anchor apply
+anchorctl apply
 
 # Terminal 3 — watch state transitions
-watch -n 2 "anchor status"
+watch -n 2 "anchorctl status"
 ```
 
 What you'll see in Terminal 2:
@@ -215,13 +231,13 @@ Terminal 1 never shows an error. **Zero downtime.**
 
 ```bash
 # Force rollback right now
-anchor rollback
+anchorctl rollback
 
 # Manually flip traffic to green (skip all checks)
-anchor switch green
+anchorctl switch green
 
 # See full deployment history
-anchor history
+anchorctl history
 ```
 
 ---
@@ -237,10 +253,10 @@ curl -X POST http://your-server:8080/deploy \
   -d '{"config_path": "deploy.yml"}'
 ```
 
-Or install anchor on your CI runner and use the CLI directly:
+Or install anchorctl on your CI runner and use the CLI directly:
 
 ```bash
-ANCHOR_HOST=http://your-server:8080 anchor apply
+ANCHOR_HOST=http://your-server:8080 anchorctl apply
 ```
 
 ---
