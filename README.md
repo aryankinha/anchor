@@ -179,6 +179,35 @@ ANCHOR_HOST=http://your-server:8080 anchorctl apply --yes
 
 ---
 
+## Canary Testing (Prototype Localhost Setup)
+
+While Anchor currently focuses primarily on Blue/Green deployments, you can use the prototype configuration to test Canary traffic splitting on your localhost. Under this strategy, Anchor allows a controlled amount of traffic instead of a 100% immediate flip.
+
+To test this locally:
+
+1. Update your `.anchor/config.yml` to specify the `canary` strategy:
+```yaml
+app:
+  name: myapp
+  image: myapp:v2
+
+ports:
+  blue: 8001
+  green: 8002
+
+health_check:
+  path: /health
+  timeout: 5
+  retries: 3
+
+strategy: canary
+```
+
+2. Run `anchorctl plan` to preview the canary routing mechanism.
+3. Once applied (`anchorctl apply`), you can observe the logs and watch Nginx metrics on Grafana (`localhost:3000`) segmenting traffic between Blue and Green during the probationary window before automatic full-promotion.
+
+---
+
 ## Environment Variables
 
 Override the default behavior and connections using standard environment variables:
